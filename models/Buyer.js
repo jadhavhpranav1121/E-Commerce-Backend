@@ -6,14 +6,14 @@ const buyerScheme = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        default: "demo first_name"
+        default: "first_name"
     },
     last_name: {
         type: String,
         unique: true,
         required: true,
         trim: true,
-        default: "demo last_name"
+        default: "last_name"
     },
     email: {
         type: String,
@@ -58,14 +58,17 @@ const buyerScheme = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        default: "demo address"
     },
     wishlist: {
         type: [product_details],
-        default: []
+        default: [],
+        unique: false
     },
     buy: {
         type: [product_details],
-        default: []
+        default: [],
+        unique: false
     }
 })
 

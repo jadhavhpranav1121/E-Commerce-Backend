@@ -99,11 +99,10 @@ router.delete("/seller/delete_seller/:id", async(req, res) => {
             }).catch((err) => {
                 res.status(500).send("Something went wrong");
             });
-        res.status(202).send(delete_seller);
+        res.status(202).send("seller's data is deleted");
     } catch (err) {
         res.status(500).send("Something went wrong");
     }
-    // res.send(delete_seller);
 })
 
 // Add Products Details
@@ -119,7 +118,7 @@ router.post("/seller/:seller_id/add_products/", async(req, res) => {
             .catch((err) => {
                 res.status(500).send("Something went wrong");
             });
-        res.status(201).send(data_of_seller);
+        res.status(201).send("product added in seller's product");
     } catch (err) {
         res.status(500).send("something went wrong")
     }
@@ -197,7 +196,7 @@ router.delete("/seller/:seller_id/delete_product/:id_of_product", async(req, res
                 console.log(error); // Failure
                 res.status(404).send("Fail to Delete")
             });
-        res.status(202).send(delete_product);
+        res.status(202).send("product is deleted");
     } catch (error) {
         res.status(500).send("Something went wrong");
     }

@@ -92,12 +92,12 @@ router.delete("/buyer/delete_buyer/:buyer_id", async(req, res) => {
         const buyer_id = req.params.buyer_id;
         const delete_buyer = await buyer.findByIdAndDelete(buyer_id)
             .then(() => {
-                console.log("data is Deleted");
+                console.log("Data is Deleted");
             })
             .catch((err) => {
                 res.status(500).send("Something went wrong");
             })
-        res.status(202).send(delete_buyer);
+        res.status(202).send("Data is deleted");
     } catch (error) {
         res.status(500).send("Something went wrong");
     }
@@ -110,14 +110,16 @@ router.post("/buyer/:buyer_id/add_wishlist/", async(req, res) => {
     // Add product in wishlist
     try {
         const id_of_buyer = req.params.buyer_id;
-        const data_of_buyer = await buyer.findOneAndUpdate({ "_id": id_of_buyer }, { $push: { wishlist: req.body } })
-            .then(() => {
-                console.log("wishlist is updated with new product")
-            })
-            .catch((err) => {
-                res.status(500).send("new product is not added in wishlist");
-            })
-        res.status(201).send(data_of_buyer);
+        const data_of_buyer = buyer.findOneAndUpdate({ "_id": id_of_buyer }, { $push: { wishlist: req.body } }, { upsert: true, new: true }, function(err, results) {
+            if (err) {
+                res.status(500).send("Something went wrong");
+            } else if (results == null) {
+                console.log("new product is not added in wishlist");
+                res.status(500).send("Something went wrong");
+            } else {
+                res.status(201).send("new product is added in wishlist");
+            }
+        })
     } catch (err) {
         res.status(500).send("Something went wrong");
     }
@@ -127,8 +129,15 @@ router.get("/buyer/:buyer_id/get_wishlist/:id_of_product", async(req, res) => {
     try {
         const buyer_id = req.params.buyer_id;
         const id_of_product = req.params.id_of_product;
-        const find_product = await buyer.find({ "_id": buyer_id }, { wishlist: { $elemMatch: { "_id": id_of_product } } })
-        res.status(200).send(find_product);
+        const find_product = await buyer.find({ "_id": buyer_id }, { wishlist: { $elemMatch: { "_id": id_of_product } } }, function(err, results) {
+            if (err) {
+                res.status(500).send("Something went wrong");
+            } else if (results == null) {
+                res.status(404).send("require product is not found");
+            } else {
+                res.status(200).send(results);
+            }
+        })
     } catch (error) {
         res.status(500).send("Something went wrong");
     }
@@ -195,7 +204,7 @@ router.delete("/buyer/:buyer_id/delete_product_in_wishlist/:id_of_product", asyn
                 console.log(error); // Failure
                 res.status(404).send(error)
             });
-        res.status(202).send(delete_product);
+        res.status(202).send("Product is deleted in wishlist");
     } catch (error) {
         res.status(500).send("Something went wrong");
     }
@@ -203,18 +212,21 @@ router.delete("/buyer/:buyer_id/delete_product_in_wishlist/:id_of_product", asyn
 
 // CRUD for buy 
 
-router.post("/buyer/:id_of_buyer/add_buy/", async(req, res) => {
+router.post("/buyer/:id_of_buyer/add_buy", async(req, res) => {
     // Add product in buyer's buy
     try {
-        const id_of_buyer = req.params.buyer_id;
-        const data_of_buyer = await buyer.findOneAndUpdate({ "_id": id_of_buyer }, { $push: { buy: req.body } })
-            .then(() => {
-                console.log("product is added in buy section");
-            })
-            .catch((err) => {
-                res.status(500).send("product is not added in buy section");
-            })
-        res.status(200).send(data_of_buyer);
+        const id_of_buyer = req.params.id_of_buyer;
+        const data_of_buyer = buyer.findOneAndUpdate({ "_id": id_of_buyer }, { $push: { buy: req.body } }, { upsert: true, new: true }, function(err, results) {
+            if (err) {
+                res.status(500).send("Something went wrong");
+            } else if (results == null) {
+                console.log("new product is not added in buy");
+                res.status(500).send("new product is not added in buy");
+            } else {
+                res.status(201).send("new product is added in buy");
+            }
+        })
+
     } catch (error) {
         res.status(500).send("Something went wrong");
     }
@@ -296,7 +308,7 @@ router.delete("/buyer/:buyer_id/delete_product_in_buy/:id_of_product", async(req
                 console.log(error); // Failure
                 res.status(404).send(error)
             });
-        res.status(202).send(delete_product);
+        res.status(202).send("product in buy is deleted");
     } catch (error) {
         res.status(500).send("Something went wrong");
     }
